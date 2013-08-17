@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Todo List</title>
+<link rel="stylesheet" type="text/css"
+    href="${contextPath}/assets/css/style.css">
+</head>
+<body>
+    <#if errorMessage??>
+    <div class="alert alert-error">
+        <p>${errorMessage}</p>
+    </div>
+    </#if> <#if successMessage??>
+    <div class="alert alert-success">
+        <p>${successMessage}</p>
+    </div>
+    </#if>
+    <h2>Create Todo</h2>
+    <form action="${contextPath}/todo/create" method="post">
+        Title: <input id="todoTitle" name="todoTitle"><br>
+        <input type="submit" value="Create" />
+    </form>
+    <h2>Todo List</h2>
+    <table>
+        <tr>
+            <th>Title</th>
+            <th>Created At</th>
+            <th>Actions</th>
+        </tr>
+        <#list todos as todo>
+        <tr>
+            <#if todo.finished>
+            <td><span class="strike">${todo.todoTitle}</span></td>
+            <#else>
+            <td>${todo.todoTitle}</td> </#if>
+            <td>${todo.createdAt?string("yyyy-MM-dd HH:mm:ss")}</td>
+            <td><#if !todo.finished>
+                <form action="${contextPath}/todo/finish" method="post"
+                    style="display: inline;">
+                    <input type="hidden" name="todoId"
+                        value="${todo.todoId}"><input
+                        type="submit" value="Done" />
+                </form> </#if>
+                <form action="${contextPath}/todo/delete" method="post"
+                    style="display: inline;">
+                    <input type="hidden" name="todoId"
+                        value="${todo.todoId}"><input
+                        type="submit" value="Delete" />
+                </form>
+            </td>
+        </tr>
+        </#list>
+    </table>
+</body>
+</html>
