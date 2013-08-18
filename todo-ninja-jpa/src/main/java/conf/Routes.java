@@ -71,6 +71,7 @@ public class Routes implements ApplicationRoutes {
 				.with(TodoRestController.class, "deleteTodo");
 
 		// etc
+		router.GET().route("/").with(TodoController.class, "list");
 		router.GET().route("/assets/.*").with(AssetsController.class, "serve");
 	}
 

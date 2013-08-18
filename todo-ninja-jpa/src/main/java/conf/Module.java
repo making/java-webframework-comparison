@@ -18,11 +18,14 @@ package conf;
 
 import com.google.inject.AbstractModule;
 
+import domain.repository.todo.TodoRepository;
+import domain.repository.todo.TodoRepositoryImpl;
+
 public class Module extends AbstractModule {
 
-    @Override
-    protected void configure() {
-        
-    }
+	@Override
+	protected void configure() {
+		bind(TodoRepository.class).to(TodoRepositoryImpl.class);
+	}
 
 }

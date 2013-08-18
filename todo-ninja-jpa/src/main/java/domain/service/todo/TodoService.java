@@ -4,36 +4,29 @@ import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.inject.Singleton;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import com.google.inject.persist.Transactional;
 
 import domain.common.exception.BusinessException;
 import domain.common.exception.ResourceNotFoundException;
 import domain.model.Todo;
+import domain.repository.todo.TodoRepository;
 
 @Singleton
 public class TodoService {
 
 	private static final long MAX_UNFINISHED_COUNT = 5;
 	@Inject
-	protected Provider<EntityManager> entityManager;
-
-	public EntityManager getEntityManager() {
-		return entityManager.get();
-	}
+	protected TodoRepository todoRepository;
 
 	public List<Todo> findAll() {
-		TypedQuery<Todo> q = getEntityManager().createNamedQuery(
-				"Todo.findAll", Todo.class);
-		return q.getResultList();
+		List<Todo> todos = todoRepository.findAllOrderById();
+		return todos;
 	}
 
 	public Todo findOne(Integer todoId) {
-		Todo todo = getEntityManager().find(Todo.class, todoId);
+		Todo todo = todoRepository.findOne(todoId);
 		if (todo == null) {
 			throw new ResourceNotFoundException(
 					"[E404] The requested Todo is not found. (id=" + todoId
@@ -44,10 +37,7 @@ public class TodoService {
 
 	@Transactional
 	public Todo create(Todo todo) {
-		TypedQuery<Long> q = getEntityManager().createQuery(
-				"SELECT COUNT(x) FROM Todo x WHERE x.finished = :finished",
-				Long.class).setParameter("finished", false);
-		long unfinishedCount = q.getSingleResult();
+		long unfinishedCount = todoRepository.countByFinished(false);
 		if (unfinishedCount >= MAX_UNFINISHED_COUNT) {
 			throw new BusinessException(
 					"[E001] The count of un-finished Todo must not be over "
@@ -56,8 +46,7 @@ public class TodoService {
 
 		todo.setFinished(false);
 		todo.setCreatedAt(new Date());
-		getEntityManager().persist(todo);
-		getEntityManager().flush();
+		todoRepository.save(todo);
 		return todo;
 	}
 
@@ -70,13 +59,12 @@ public class TodoService {
 							+ todoId + ")");
 		}
 		todo.setFinished(true);
-		getEntityManager().merge(todo);
+		todoRepository.save(todo);
 		return todo;
 	}
 
 	@Transactional
 	public void delete(Integer todoId) {
-		Todo todo = findOne(todoId);
-		getEntityManager().remove(todo);
+		todoRepository.remove(todoId);
 	}
 }
