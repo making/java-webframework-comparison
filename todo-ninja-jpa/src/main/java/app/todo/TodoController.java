@@ -28,6 +28,7 @@ public class TodoController {
 	public Result create(Context context, @JSR303Validation TodoForm form,
 			Validation validation) {
 		if (validation.hasViolations()) {
+			// TODO
 			return list().render("errorMessage", "Validation error!").template(
 					"/app/todo/TodoController/list.ftl.html");
 		}

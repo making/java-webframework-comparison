@@ -28,7 +28,10 @@ public class TodoRestController {
 	@FilterWith({ BusinessExceptionHandlerFilter.class })
 	public Result postTodos(Context context, Todo todo) {
 		Todo created = todoService.create(todo);
-		return Results.status(201).json().render(created);
+		String location = "http://localhost:8080" + context.getContextPath()
+				+ context.getRequestPath() + "/" + created.getTodoId();
+		return Results.status(201).addHeader("Location", location).json()
+				.render(created);
 	}
 
 	@FilterWith({ ResourceNotFoundExceptionHandlerFilter.class })
